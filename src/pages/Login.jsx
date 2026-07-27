@@ -51,11 +51,6 @@ export default function Login() {
         <div className="auth-switch">
           New company? <Link to="/register">Create your Green Print account</Link>
         </div>
-
-        <div className="demo-box">
-          Demo logins — super admin: <b>admin@greenprint.io</b> / <b>admin123</b><br />
-          Company admin: <b>ava@acme.io</b> / <b>demo1234</b>
-        </div>
       </div>
     </div>
   );
