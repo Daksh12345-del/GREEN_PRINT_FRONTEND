@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Factory, Truck, ClipboardList, Sparkles,
-  Users, Building2, LogOut, Leaf, Radio, Beaker, Coins, FileText
+  Users, Building2, LogOut, Leaf, Radio, Beaker, Coins, FileText,
+  Menu, X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -40,6 +42,7 @@ function initials(name = "") {
 export default function Layout() {
   const { user, company, logout } = useAuth();
   const location = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
   const meta = PAGE_META[location.pathname] || { title: "Green Print", sub: "" };
 
   const visibleItems = NAV_ITEMS.filter(
@@ -48,10 +51,15 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
-      <nav className="rail">
+      {navOpen && <div className="rail-backdrop" onClick={() => setNavOpen(false)} />}
+
+      <nav className={`rail${navOpen ? " open" : ""}`}>
         <div className="rail-brand">
           <span className="rail-brand-mark">🌱</span>
           Green Print
+          <button className="rail-close" onClick={() => setNavOpen(false)} aria-label="Close menu">
+            <X size={18} />
+          </button>
         </div>
 
         <div className="rail-section-label">Platform</div>
@@ -60,6 +68,7 @@ export default function Layout() {
             key={to}
             to={to}
             end={to === "/"}
+            onClick={() => setNavOpen(false)}
             className={({ isActive }) => `rail-link${isActive ? " active" : ""}`}
           >
             <Icon size={16} />
@@ -90,13 +99,18 @@ export default function Layout() {
 
       <div className="main">
         <header className="topbar">
-          <div>
-            <h1>{meta.title}</h1>
-            <div className="topbar-sub">{meta.sub}</div>
+          <div className="topbar-left">
+            <button className="rail-toggle" onClick={() => setNavOpen(true)} aria-label="Open menu">
+              <Menu size={20} />
+            </button>
+            <div>
+              <h1>{meta.title}</h1>
+              <div className="topbar-sub">{meta.sub}</div>
+            </div>
           </div>
           <span className="pill">
             <span className="dot" />
-            Live data
+            <span className="pill-text">Live data</span>
           </span>
         </header>
         <div className="page">
