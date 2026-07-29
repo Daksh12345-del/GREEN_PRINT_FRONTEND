@@ -52,7 +52,7 @@ jobs:
           node-version: "22"
 
       - name: Install and start the backend
-        working-directory: backend/server
+        working-directory: backend
         env:
           DATABASE_URL: postgresql://postgres:testpass@localhost:5432/greenprint_ci
           JWT_SECRET: ci-test-secret-not-for-production
@@ -93,4 +93,4 @@ jobs:
 
       - name: Show backend logs on failure
         if: failure()
-        run: cat backend/server/backend.log || true
+        run: cat backend/backend.log || true
