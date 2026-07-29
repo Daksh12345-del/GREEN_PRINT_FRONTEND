@@ -1,0 +1,96 @@
+# This checks out the backend repo (Daksh12345-del/GREEN_PRINT_BACKEND)
+# alongside this frontend repo so it can boot a real backend + real
+# Postgres to test against — same idea as running both locally (see
+# tests-selenium/README.md). If you ever rename or fork the backend repo,
+# update BACKEND_REPO below to match.
+
+name: Frontend E2E (Selenium)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  BACKEND_REPO: Daksh12345-del/GREEN_PRINT_BACKEND
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: greenprint_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+        with:
+          path: frontend
+
+      - name: Checkout backend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.BACKEND_REPO }}
+          path: backend
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install and start the backend
+        working-directory: backend/server
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/greenprint_ci
+          JWT_SECRET: ci-test-secret-not-for-production
+          ALLOWED_ORIGIN: "*"
+        run: |
+          npm install
+          nohup npm start > backend.log 2>&1 &
+          npx --yes wait-on http://localhost:3000/api/health --timeout 30000
+
+      - name: Build the frontend against the local backend
+        working-directory: frontend
+        env:
+          VITE_API_URL: http://localhost:3000/api
+        run: |
+          npm install
+          npm run build
+
+      - name: Serve the built frontend
+        working-directory: frontend
+        run: |
+          nohup npx --yes serve -s dist -l 5000 > frontend.log 2>&1 &
+          npx --yes wait-on http://localhost:5000 --timeout 30000
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Selenium test dependencies
+        working-directory: frontend/tests-selenium
+        run: pip install -r requirements.txt
+
+      - name: Run Selenium E2E suite
+        working-directory: frontend/tests-selenium
+        env:
+          BASE_URL: http://localhost:5000
+        run: pytest -v
+
+      - name: Show backend logs on failure
+        if: failure()
+        run: cat backend/server/backend.log || true
