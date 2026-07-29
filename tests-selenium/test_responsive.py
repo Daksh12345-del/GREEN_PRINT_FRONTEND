@@ -26,7 +26,17 @@ def test_mobile_hides_the_sidebar_by_default_and_shows_a_hamburger(mobile_driver
     toggle = mobile_driver.find_element(By.CLASS_NAME, "rail-toggle")
 
     assert toggle.is_displayed(), "hamburger button should be visible on a phone-sized screen"
-    assert not rail.is_displayed(), "sidebar should be off-screen by default on mobile"
+
+    # Selenium's is_displayed() only checks display/visibility/opacity — it
+    # does NOT know that our CSS moves the sidebar off-screen with
+    # `transform: translateX(-100%)`, so checking that directly here
+    # instead is what actually proves the drawer starts closed.
+    assert "open" not in rail.get_attribute("class"), \
+        "sidebar should not have the 'open' class by default on mobile"
+
+    transform = rail.value_of_css_property("transform")
+    assert transform not in ("none", ""), \
+        "expected the mobile CSS to apply an off-screen transform to the closed sidebar"
 
 
 def test_mobile_hamburger_opens_the_sidebar_drawer(mobile_driver, new_company_mobile):
