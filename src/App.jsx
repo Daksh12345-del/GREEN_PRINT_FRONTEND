@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import Layout from "./components/Layout.jsx";
 import Login from "./pages/Login.jsx";
 import RegisterCompany from "./pages/RegisterCompany.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Facilities from "./pages/Facilities.jsx";
 import Fleet from "./pages/Fleet.jsx";
@@ -48,6 +50,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<RequireGuest><Login /></RequireGuest>} />
       <Route path="/register" element={<RequireGuest><RegisterCompany /></RequireGuest>} />
+      <Route path="/forgot-password" element={<RequireGuest><ForgotPassword /></RequireGuest>} />
+      <Route path="/reset-password" element={<RequireGuest><ResetPassword /></RequireGuest>} />
 
       <Route
         path="/"

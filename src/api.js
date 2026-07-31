@@ -62,6 +62,12 @@ export const login = (email, password) =>
 export const registerCompany = (data) =>
   request("/auth/register-company", { method: "POST", body: JSON.stringify(data) });
 
+export const forgotPassword = (email) =>
+  request("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) });
+
+export const resetPassword = (token, newPassword) =>
+  request("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, newPassword }) });
+
 export const getMe = () => request("/auth/me");
 
 // ---- companies ----
