@@ -259,6 +259,18 @@ a:hover { text-decoration: underline; }
 .topbar h1 { font-size: 19px; }
 .topbar-sub { color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
 
+.theme-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.theme-toggle:hover { background: var(--surface-sunken); color: var(--ink); }
+
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 5px 11px; border-radius: 999px;
