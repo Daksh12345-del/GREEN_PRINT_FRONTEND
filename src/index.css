@@ -42,6 +42,37 @@
   --shadow-card: 0 1px 2px rgba(23, 33, 28, 0.05), 0 1px 0 rgba(23, 33, 28, 0.03);
 }
 
+/* Dark theme — same token names, different values, so every component
+   that already reads var(--bg)/var(--ink)/etc. just works, no per-page
+   dark-mode CSS needed. Toggled via a `data-theme="dark"` attribute on
+   <html> (see ThemeContext.jsx), persisted in localStorage. */
+:root[data-theme="dark"] {
+  --bg: #12160F;
+  --surface: #1B211C;
+  --surface-sunken: #232A24;
+  --ink: #E7EEE6;
+  --ink-soft: #A9B6A5;
+  --ink-faint: #6E7A6A;
+  --border: #2E362E;
+
+  --brand: #4FAE7E;
+  --brand-strong: #6FCF9A;
+  --brand-soft: #1E3327;
+
+  --good: #4FAE7E;
+  --warn: #E0A25B;
+  --warn-soft: #3A2C18;
+  --crit: #E0685C;
+  --crit-soft: #3A211D;
+
+  --rail-bg: #0B120D;
+  --rail-ink: #D9E4DC;
+  --rail-ink-dim: #71847A;
+  --rail-active: #1F3A2C;
+
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.35), 0 1px 0 rgba(0,0,0,0.2);
+}
+
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; }
