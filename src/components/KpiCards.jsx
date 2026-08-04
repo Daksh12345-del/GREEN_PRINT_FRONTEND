@@ -1,10 +1,14 @@
+import { useLanguage } from "../context/LanguageContext.jsx";
+
 export default function KpiCards({ kpis, loading }) {
+  const { t } = useLanguage();
+
   if (loading || !kpis) {
     return (
       <div className="grid grid-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="card kpi-card">
-            <div className="kpi-label">Loading…</div>
+            <div className="kpi-label">{t("loading")}</div>
             <div className="kpi-value">—</div>
           </div>
         ))}
@@ -13,10 +17,10 @@ export default function KpiCards({ kpis, loading }) {
   }
 
   const cards = [
-    { label: "Total CO2e", value: kpis.co2e, unit: "kg" },
-    { label: "Scope 2 — electricity", value: kpis.electricityCo2e, unit: "kg CO2e" },
-    { label: "Scope 1 — fuel combustion", value: kpis.fuelCo2e, unit: "kg CO2e" },
-    { label: "Renewable Share", value: kpis.renewableShare, unit: "%" }
+    { label: t("totalCo2e"), value: kpis.co2e, unit: "kg" },
+    { label: t("scope2Electricity"), value: kpis.electricityCo2e, unit: "kg CO2e" },
+    { label: t("scope1Fuel"), value: kpis.fuelCo2e, unit: "kg CO2e" },
+    { label: t("renewableShare"), value: kpis.renewableShare, unit: "%" }
   ];
 
   return (
@@ -44,7 +48,7 @@ export default function KpiCards({ kpis, loading }) {
       </div>
 
       <div className="card kpi-card" style={{ gridColumn: "1 / -1" }}>
-        <div className="kpi-label">Green Score (illustrative — not a certified rating)</div>
+        <div className="kpi-label">{t("greenScore")}</div>
         <div className="kpi-value">
           {kpis.esgScore}
           <span className="kpi-unit"> / 100</span>

@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { TrendingUp } from "lucide-react";
 import * as api from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 import KpiCards from "../components/KpiCards.jsx";
 import EmissionsChart from "../components/EmissionsChart.jsx";
 import Pipeline from "../components/Pipeline.jsx";
@@ -19,16 +21,21 @@ const ACTIVITY_LABELS = {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [kpis, setKpis] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [trend, setTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
     try {
-      const [k, l] = await Promise.all([api.getKpis(), api.getLogs()]);
-      setKpis(k);
-      setLogs(l);
+      const [kpiData, logData, trendData] = await Promise.all([
+        api.getKpis(), api.getLogs(), api.getTrend().catch(() => null)
+      ]);
+      setKpis(kpiData);
+      setLogs(logData);
+      setTrend(trendData);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -51,6 +58,13 @@ export default function Dashboard() {
     <>
       {error && <div className="error-banner">Can't reach the API ({error})</div>}
 
+      {trend?.isAlert && (
+        <div className="error-banner" style={{ background: "var(--warn-soft)", color: "var(--warn)", display: "flex", alignItems: "center", gap: 8 }}>
+          <TrendingUp size={15} />
+          {trend.message} Check Activity Logs or AI Insights to see what changed.
+        </div>
+      )}
+
       <div className="card" style={{ marginBottom: 20 }}>
         <div className="kpi-label" style={{ marginBottom: 10 }}>How your data becomes a recommendation</div>
         <Pipeline activeIndex={3} />
@@ -60,9 +74,9 @@ export default function Dashboard() {
 
       <div className="section">
         <div className="section-title">
-          <h2>Emissions trend</h2>
+          <h2>{t("emissionsTrend")}</h2>
           <Link to="/logs" className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: 12.5 }}>
-            Add a log →
+            {t("addALog")}
           </Link>
         </div>
         <EmissionsChart logs={logs} />
@@ -70,19 +84,19 @@ export default function Dashboard() {
 
       <div className="section">
         <div className="section-title">
-          <h2>Recent activity</h2>
+          <h2>{t("recentActivity")}</h2>
           <Link to="/ai-insights" className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: 12.5 }}>
-            View AI Insights →
+            {t("viewAiInsights")}
           </Link>
         </div>
         <div className="card" style={{ padding: 0 }}>
           <table>
             <thead>
-              <tr><th>When</th><th>Activity</th><th>Quantity</th><th>CO2e (kg)</th></tr>
+              <tr><th>{t("when")}</th><th>{t("activity")}</th><th>{t("quantity")}</th><th>CO2e (kg)</th></tr>
             </thead>
             <tbody>
               {logs.length === 0 && (
-                <tr className="empty-row"><td colSpan={4}>No logs yet</td></tr>
+                <tr className="empty-row"><td colSpan={4}>{t("noLogsYet")}</td></tr>
               )}
               {logs.slice(-6).reverse().map((l) => (
                 <tr key={l.id}>

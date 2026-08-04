@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Languages } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function Login() {
   const { login } = useAuth();
+  const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,32 +30,42 @@ export default function Login() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
-        <div className="auth-brand">
-          <span>🌱</span> Green Print
+        <div className="auth-brand" style={{ justifyContent: "space-between" }}>
+          <span><span style={{ marginRight: 8 }}>🌱</span>Green Print</span>
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="btn btn-secondary"
+            style={{ padding: "5px 10px", fontSize: 12, fontWeight: 600 }}
+            title="Switch language"
+          >
+            <Languages size={13} style={{ marginRight: 4, verticalAlign: -2 }} />
+            {language === "en" ? "हिं" : "EN"}
+          </button>
         </div>
-        <p className="auth-tagline">Track carbon the way you track revenue.</p>
+        <p className="auth-tagline">{t("tagline")}</p>
 
         {error && <div className="error-banner">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t("email")}</label>
             <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" />
           </div>
           <div className="field">
             <label htmlFor="password" style={{ display: "flex", justifyContent: "space-between" }}>
-              Password
-              <Link to="/forgot-password" style={{ fontWeight: 500, fontSize: 12.5 }}>Forgot password?</Link>
+              {t("password")}
+              <Link to="/forgot-password" style={{ fontWeight: 500, fontSize: 12.5 }}>{t("forgotPassword")}</Link>
             </label>
             <input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </div>
           <button className="btn btn-primary btn-block" disabled={busy} type="submit">
-            {busy ? "Signing in…" : "Sign in"}
+            {busy ? t("signingIn") : t("signIn")}
           </button>
         </form>
 
         <div className="auth-switch">
-          New company? <Link to="/register">Create your Green Print account</Link>
+          {t("newCompany")} <Link to="/register">{t("createAccount")}</Link>
         </div>
       </div>
     </div>

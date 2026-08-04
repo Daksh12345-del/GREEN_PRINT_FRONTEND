@@ -98,6 +98,7 @@ export const deleteLog = (id) => request(`/logs/${id}`, { method: "DELETE" });
 
 // ---- kpis ----
 export const getKpis = (companyId) => request(withQuery("/kpis", { companyId }));
+export const getTrend = (companyId) => request(withQuery("/kpis/trend", { companyId }));
 
 // ---- AI insights (flagship module) ----
 export const getAiInsights = (companyId, refresh) =>
@@ -131,6 +132,22 @@ export async function downloadEsgReport(companyId) {
   const a = document.createElement("a");
   a.href = url;
   a.download = "greenprint-esg-report.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadLogsCsv(companyId) {
+  const token = getToken();
+  const qs = withQuery("/reports/logs.csv", { companyId });
+  const res = await fetch(`${API_BASE}${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`CSV export failed: ${res.status}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "greenprint-logs.csv";
   document.body.appendChild(a);
   a.click();
   a.remove();

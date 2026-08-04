@@ -3,26 +3,30 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Factory, Truck, ClipboardList, Sparkles,
   Users, Building2, LogOut, Leaf, Radio, Beaker, Coins, FileText,
-  Menu, X
+  Menu, X, Sun, Moon, Languages
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, roles: "all" },
-  { to: "/logs", label: "Activity Logs", icon: ClipboardList, roles: "all" },
-  { to: "/facilities", label: "Facilities", icon: Factory, roles: ["company_admin", "plant_manager", "super_admin"] },
-  { to: "/fleet", label: "Fleet", icon: Truck, roles: ["company_admin", "fleet_manager", "super_admin"] },
-  { to: "/devices", label: "IoT Devices", icon: Radio, roles: ["company_admin", "plant_manager", "fleet_manager", "super_admin"] },
-  { to: "/ai-insights", label: "AI Insights", icon: Sparkles, roles: "all" },
-  { to: "/reports", label: "Reports", icon: FileText, roles: "all" },
-  { to: "/carbon-credits", label: "Carbon Credits", icon: Coins, roles: ["company_admin", "super_admin"] },
-  { to: "/emission-factors", label: "Emission Factors", icon: Beaker, roles: "all" },
-  { to: "/team", label: "Team", icon: Users, roles: ["company_admin", "super_admin"] },
-  { to: "/companies", label: "Companies", icon: Building2, roles: ["super_admin"] }
+  { to: "/", labelKey: "navDashboard", icon: LayoutDashboard, roles: "all" },
+  { to: "/logs", labelKey: "navActivityLogs", icon: ClipboardList, roles: "all" },
+  { to: "/facilities", labelKey: "navFacilities", icon: Factory, roles: ["company_admin", "plant_manager", "super_admin"] },
+  { to: "/fleet", labelKey: "navFleet", icon: Truck, roles: ["company_admin", "fleet_manager", "super_admin"] },
+  { to: "/devices", labelKey: "navDevices", icon: Radio, roles: ["company_admin", "plant_manager", "fleet_manager", "super_admin"] },
+  { to: "/ai-insights", labelKey: "navAiInsights", icon: Sparkles, roles: "all" },
+  { to: "/reports", labelKey: "navReports", icon: FileText, roles: "all" },
+  { to: "/carbon-credits", labelKey: "navCarbonCredits", icon: Coins, roles: ["company_admin", "super_admin"] },
+  { to: "/emission-factors", labelKey: "navEmissionFactors", icon: Beaker, roles: "all" },
+  { to: "/team", labelKey: "navTeam", icon: Users, roles: ["company_admin", "super_admin"] },
+  { to: "/companies", labelKey: "navCompanies", icon: Building2, roles: ["super_admin"] }
 ];
 
+// Only the Dashboard has full title/subtitle translations right now (see
+// translations.js) — other pages fall back to English until translated.
 const PAGE_META = {
-  "/": { title: "Dashboard", sub: "Live emissions overview, recalculated from every log you've entered." },
+  "/": { titleKey: "dashboardTitle", subKey: "dashboardSubtitle" },
   "/logs": { title: "Activity Logs", sub: "The raw activity data every KPI is computed from." },
   "/facilities": { title: "Facilities", sub: "Plants, offices, and sites reporting emissions." },
   "/fleet": { title: "Fleet", sub: "Vehicles reporting fuel and distance data." },
@@ -41,9 +45,16 @@ function initials(name = "") {
 
 export default function Layout() {
   const { user, company, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { t, language, toggleLanguage } = useLanguage();
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
-  const meta = PAGE_META[location.pathname] || { title: "Green Print", sub: "" };
+
+  const rawMeta = PAGE_META[location.pathname] || { title: "Green Print", sub: "" };
+  const meta = {
+    title: rawMeta.titleKey ? t(rawMeta.titleKey) : rawMeta.title,
+    sub: rawMeta.subKey ? t(rawMeta.subKey) : rawMeta.sub
+  };
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => item.roles === "all" || item.roles.includes(user.role)
@@ -63,7 +74,7 @@ export default function Layout() {
         </div>
 
         <div className="rail-section-label">Platform</div>
-        {visibleItems.map(({ to, label, icon: Icon }) => (
+        {visibleItems.map(({ to, labelKey, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -72,7 +83,7 @@ export default function Layout() {
             className={({ isActive }) => `rail-link${isActive ? " active" : ""}`}
           >
             <Icon size={16} />
-            {label}
+            {t(labelKey)}
           </NavLink>
         ))}
 
@@ -92,7 +103,7 @@ export default function Layout() {
           )}
           <button className="rail-logout" onClick={logout}>
             <LogOut size={13} style={{ verticalAlign: -2, marginRight: 6 }} />
-            Sign out
+            {t("signOut")}
           </button>
         </div>
       </nav>
@@ -108,10 +119,30 @@ export default function Layout() {
               <div className="topbar-sub">{meta.sub}</div>
             </div>
           </div>
-          <span className="pill">
-            <span className="dot" />
-            <span className="pill-text">Live data</span>
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              className="theme-toggle"
+              onClick={toggleLanguage}
+              aria-label="Switch language"
+              title="Switch language"
+              style={{ width: "auto", padding: "0 10px", fontSize: 12, fontWeight: 600 }}
+            >
+              <Languages size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
+              {language === "en" ? "हिं" : "EN"}
+            </button>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <span className="pill">
+              <span className="dot" />
+              <span className="pill-text">{t("liveData")}</span>
+            </span>
+          </div>
         </header>
         <div className="page">
           <Outlet />
